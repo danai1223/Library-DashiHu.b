@@ -1,4 +1,4 @@
-Library = {}
+local Library = {}
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -111,7 +111,7 @@ function Library:CreateWindow(cfg)
         btn.TextSize = 16
         btn.TextColor3 = Color3.fromRGB(180,180,180)
         btn.BackgroundTransparency = 1
-        btn.TextXAlignment = Enum.TextXAlignment.Center -- Tab text กลาง
+        btn.TextXAlignment = Enum.TextXAlignment.Center
         btn.Position = UDim2.fromOffset(0,0)
 
         local frame = Instance.new("Frame", content)
@@ -203,11 +203,12 @@ function Library:CreateWindow(cfg)
             end)
         end
 
-        -- Slider (touch-friendly)
+        -- Slider (Touch-Friendly, ความเร็ว/ค่าต่างๆ)
         function Tab:AddSlider(cfg)
             local c = Card(36)
-            local label = Instance.new("TextLabel",c)
-            label.Text = cfg.Text.." 0"
+            
+            local label = Instance.new("TextLabel", c)
+            label.Text = string.format("%s: %.2f", cfg.Text, cfg.Min)
             label.Font = Enum.Font.Gotham
             label.TextSize = 12
             label.TextColor3 = Color3.new(1,1,1)
@@ -216,39 +217,62 @@ function Library:CreateWindow(cfg)
             label.Size = UDim2.new(0.6,0,1,0)
             label.TextXAlignment = Enum.TextXAlignment.Left
 
-            local slider = Instance.new("Frame",c)
+            local slider = Instance.new("Frame", c)
             slider.Size = UDim2.fromOffset(150,6)
             slider.Position = UDim2.new(1,-170,0.5,-3)
             slider.BackgroundColor3 = Color3.fromRGB(70,70,70)
             Instance.new("UICorner", slider).CornerRadius = UDim.new(1,0)
 
-            local knob = Instance.new("Frame",slider)
-            knob.Size = UDim2.fromOffset(10,12)
-            knob.Position = UDim2.fromOffset(0,-3)
+            local knob = Instance.new("Frame", slider)
+            knob.Size = UDim2.fromOffset(16,16)
+            knob.Position = UDim2.fromOffset(0,-5)
             knob.BackgroundColor3 = Color3.fromRGB(0,140,255)
             Instance.new("UICorner", knob).CornerRadius = UDim.new(1,0)
 
             local dragging = false
-            local function update(x)
-                local p=math.clamp(x-slider.AbsolutePosition.X,0,slider.AbsoluteSize.X)
-                knob.Position=UDim2.fromOffset(p,-3)
-                local val=cfg.Min + (cfg.Max-cfg.Min)*(p/slider.AbsoluteSize.X)
-                label.Text=string.format("%s %.2f",cfg.Text,val)
+
+            local function update(inputX)
+                local p = math.clamp(inputX - slider.AbsolutePosition.X, 0, slider.AbsoluteSize.X)
+                knob.Position = UDim2.fromOffset(p - knob.AbsoluteSize.X/2, -5)
+                local val = cfg.Min + (cfg.Max - cfg.Min) * (p / slider.AbsoluteSize.X)
+                label.Text = string.format("%s: %.2f", cfg.Text, val)
                 if cfg.Callback then cfg.Callback(val) end
             end
 
-            knob.InputBegan:Connect(function(i)
-                if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dragging=true end
+            knob.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or
+                   input.UserInputType == Enum.UserInputType.Touch then
+                    dragging = true
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            dragging = false
+                        end
+                    end)
+                end
             end)
-            knob.InputEnded:Connect(function(i)
-                if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dragging=false end
+
+            slider.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or
+                   input.UserInputType == Enum.UserInputType.Touch then
+                    update(input.Position.X)
+                    dragging = true
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            dragging = false
+                        end
+                    end)
+                end
             end)
-            UserInputService.InputChanged:Connect(function(i)
-                if dragging then update(i.Position.X) end
+
+            UserInputService.InputChanged:Connect(function(input)
+                if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or
+                                 input.UserInputType == Enum.UserInputType.Touch) then
+                    update(input.Position.X)
+                end
             end)
         end
 
-        -- Dropdown (overlay + rounded)
+        -- Dropdown
         function Tab:AddDropdown(cfg)
             local c = Card(36)
             local label = Instance.new("TextLabel",c)
@@ -272,7 +296,7 @@ function Library:CreateWindow(cfg)
             Instance.new("UICorner", dropBtn).CornerRadius=UDim.new(0,6)
 
             local open=false
-            local listFrame = Instance.new("Frame",gui) -- overlay on gui
+            local listFrame = Instance.new("Frame",gui)
             listFrame.Size=UDim2.new(0,dropBtn.AbsoluteSize.X,#cfg.List*24,0)
             listFrame.Position = dropBtn.AbsolutePosition + Vector2.new(0, dropBtn.AbsoluteSize.Y)
             listFrame.BackgroundColor3=Color3.fromRGB(40,40,40)
@@ -301,7 +325,6 @@ function Library:CreateWindow(cfg)
             dropBtn.MouseButton1Click:Connect(function()
                 open = not open
                 listFrame.Visible=open
-                -- update overlay position
                 local abs = dropBtn.AbsolutePosition
                 listFrame.Position = UDim2.new(0, abs.X, 0, abs.Y + dropBtn.AbsoluteSize.Y)
             end)
