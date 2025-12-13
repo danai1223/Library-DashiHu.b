@@ -1,0 +1,174 @@
+local Library = {}
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LP = Players.LocalPlayer
+
+local function tween(o,p,t)
+	TweenService:Create(o,TweenInfo.new(t or 0.25,Enum.EasingStyle.Quint,Enum.EasingDirection.Out),p):Play()
+end
+
+function Library:CreateWindow(cfg)
+	local Window = {}
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "DashiHub"
+	gui.ResetOnSpawn = false
+	gui.Parent = LP:WaitForChild("PlayerGui")
+
+	-- Floating Button
+	local openBtn = Instance.new("TextButton", gui)
+	openBtn.Size = UDim2.fromOffset(48,48)
+	openBtn.Position = UDim2.fromScale(0.03,0.55)
+	openBtn.Text = "≡"
+	openBtn.Font = Enum.Font.GothamBold
+	openBtn.TextSize = 20
+	openBtn.BackgroundColor3 = Color3.fromRGB(0,120,255)
+	openBtn.TextColor3 = Color3.new(1,1,1)
+	Instance.new("UICorner", openBtn).CornerRadius = UDim.new(1,0)
+
+	-- Main
+	local main = Instance.new("Frame", gui)
+	main.AnchorPoint = Vector2.new(0.5,0.5)
+	main.Position = UDim2.fromScale(0.5,0.5)
+	main.Size = UDim2.fromScale(0.65,0.7)
+	main.BackgroundColor3 = Color3.fromRGB(15,15,18)
+	main.Visible = true
+	Instance.new("UICorner", main).CornerRadius = UDim.new(0,16)
+
+	openBtn.MouseButton1Click:Connect(function()
+		main.Visible = not main.Visible
+	end)
+
+	-- Header
+	local header = Instance.new("TextLabel", main)
+	header.Size = UDim2.new(1,0,0,46)
+	header.BackgroundTransparency = 1
+	header.Text = cfg.Title or "Dashi Hub"
+	header.Font = Enum.Font.GothamBold
+	header.TextSize = 20
+	header.TextColor3 = Color3.fromRGB(0,150,255)
+
+	-- Body
+	local body = Instance.new("Frame", main)
+	body.Position = UDim2.fromOffset(0,46)
+	body.Size = UDim2.new(1,0,1,-46)
+	body.BackgroundTransparency = 1
+
+	-- Sidebar
+	local side = Instance.new("Frame", body)
+	side.Size = UDim2.fromScale(0.25,1)
+	side.BackgroundColor3 = Color3.fromRGB(12,12,15)
+	Instance.new("UICorner", side).CornerRadius = UDim.new(0,16)
+
+	local sideList = Instance.new("UIListLayout", side)
+	sideList.Padding = UDim.new(0,6)
+
+	-- Content
+	local content = Instance.new("Frame", body)
+	content.Position = UDim2.fromScale(0.27,0)
+	content.Size = UDim2.fromScale(0.73,1)
+	content.BackgroundTransparency = 1
+
+	local Tabs = {}
+
+	function Window:CreateTab(name)
+		local Tab = {}
+
+		local btn = Instance.new("TextButton", side)
+		btn.Size = UDim2.new(1,0,0,40)
+		btn.Text = name
+		btn.Font = Enum.Font.Gotham
+		btn.TextSize = 14
+		btn.TextColor3 = Color3.fromRGB(180,180,180)
+		btn.BackgroundTransparency = 1
+
+		local frame = Instance.new("Frame", content)
+		frame.Size = UDim2.fromScale(1,1)
+		frame.Visible = false
+		frame.BackgroundTransparency = 1
+
+		local layout = Instance.new("UIListLayout", frame)
+		layout.Padding = UDim.new(0,10)
+
+		btn.MouseButton1Click:Connect(function()
+			for _,t in pairs(Tabs) do
+				t.Frame.Visible = false
+				t.Button.TextColor3 = Color3.fromRGB(180,180,180)
+			end
+			frame.Visible = true
+			btn.TextColor3 = Color3.fromRGB(0,150,255)
+		end)
+
+		table.insert(Tabs,{Frame=frame,Button=btn})
+		if #Tabs == 1 then
+			frame.Visible = true
+			btn.TextColor3 = Color3.fromRGB(0,150,255)
+		end
+
+		local function Card(h)
+			local c = Instance.new("Frame", frame)
+			c.Size = UDim2.new(1,-10,0,h)
+			c.BackgroundColor3 = Color3.fromRGB(22,22,26)
+			Instance.new("UICorner", c).CornerRadius = UDim.new(0,12)
+			return c
+		end
+
+		function Tab:AddToggle(cfg)
+			local c = Card(50)
+
+			local txt = Instance.new("TextLabel", c)
+			txt.Text = cfg.Text
+			txt.Font = Enum.Font.Gotham
+			txt.TextSize = 14
+			txt.TextColor3 = Color3.new(1,1,1)
+			txt.BackgroundTransparency = 1
+			txt.Position = UDim2.fromOffset(12,0)
+			txt.Size = UDim2.new(0.6,0,1,0)
+
+			local sw = Instance.new("Frame", c)
+			sw.Size = UDim2.fromOffset(44,22)
+			sw.Position = UDim2.new(1,-56,0.5,-11)
+			sw.BackgroundColor3 = Color3.fromRGB(70,70,70)
+			Instance.new("UICorner", sw).CornerRadius = UDim.new(1,0)
+
+			local knob = Instance.new("Frame", sw)
+			knob.Size = UDim2.fromOffset(18,18)
+			knob.Position = UDim2.fromOffset(2,2)
+			knob.BackgroundColor3 = Color3.fromRGB(230,230,230)
+			Instance.new("UICorner", knob).CornerRadius = UDim.new(1,0)
+
+			local on = false
+			c.InputBegan:Connect(function(i)
+				if i.UserInputType == Enum.UserInputType.MouseButton1 then
+					on = not on
+					tween(sw,{BackgroundColor3 = on and Color3.fromRGB(0,140,255) or Color3.fromRGB(70,70,70)},0.2)
+					tween(knob,{Position = on and UDim2.fromOffset(24,2) or UDim2.fromOffset(2,2)},0.2)
+					if cfg.Callback then cfg.Callback(on) end
+				end
+			end)
+		end
+
+		function Tab:AddButton(cfg)
+			local c = Card(44)
+
+			local b = Instance.new("TextButton", c)
+			b.Size = UDim2.new(1,0,1,0)
+			b.BackgroundTransparency = 1
+			b.Text = cfg.Text
+			b.Font = Enum.Font.Gotham
+			b.TextSize = 14
+			b.TextColor3 = Color3.new(1,1,1)
+
+			b.MouseButton1Click:Connect(function()
+				if cfg.Callback then cfg.Callback() end
+			end)
+		end
+
+		return Tab
+	end
+
+	return Window
+end
+
+return Library
