@@ -21,7 +21,7 @@ function Library:CreateWindow(cfg)
     local openBtn = Instance.new("TextButton", gui)
     openBtn.Size = UDim2.fromOffset(48, 48)
     openBtn.Position = UDim2.fromScale(0.03, 0.55)
-    openBtn.Text = "DashiHub"
+    openBtn.Text = "≡"
     openBtn.Font = Enum.Font.GothamBold
     openBtn.TextSize = 24
     openBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
@@ -32,11 +32,19 @@ function Library:CreateWindow(cfg)
     local main = Instance.new("Frame", gui)
     main.AnchorPoint = Vector2.new(0.5, 0.5)
     main.Position = UDim2.fromScale(0.5, 0.5)
-    main.Size = UDim2.fromScale(0.65, 0.7)
+    main.Size = UDim2.fromScale(0.7, 0.75) -- ขยายเมนูใหญ่ขึ้น
     main.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
     main.Visible = true
     local mainCorner = Instance.new("UICorner", main)
     mainCorner.CornerRadius = UDim.new(0, 16)
+
+    -- Smooth Open/Close Tween
+    local menuOpen = true
+    openBtn.MouseButton1Click:Connect(function()
+        menuOpen = true
+        openBtn.Visible = false
+        tween(main, {Size = UDim2.fromScale(0.7, 0.75)}, 0.25)
+    end)
 
     -- Exit Button
     local exitBtn = Instance.new("TextButton", main)
@@ -51,15 +59,11 @@ function Library:CreateWindow(cfg)
     exitCorner.CornerRadius = UDim.new(1,0)
 
     exitBtn.MouseButton1Click:Connect(function()
+        menuOpen = false
+        tween(main, {Size = UDim2.fromScale(0, 0)}, 0.25)
+        wait(0.25)
         main.Visible = false
         openBtn.Visible = true
-        -- stop all active toggles if needed
-        if Window.StopAll then Window:StopAll() end
-    end)
-
-    openBtn.MouseButton1Click:Connect(function()
-        main.Visible = true
-        openBtn.Visible = false
     end)
 
     -- Header
@@ -73,13 +77,12 @@ function Library:CreateWindow(cfg)
     header.TextXAlignment = Enum.TextXAlignment.Left
     header.Position = UDim2.fromOffset(16, 0)
 
-    -- Body
+    -- Body (Scrollable)
     local body = Instance.new("ScrollingFrame", main)
     body.Position = UDim2.fromOffset(0, 46)
     body.Size = UDim2.new(1, 0, 1, -46)
     body.BackgroundTransparency = 1
-    body.ScrollBarThickness = 8
-    body.CanvasSize = UDim2.new(0,0,0,0)
+    body.ScrollBarThickness = 6
     body.AutomaticCanvasSize = Enum.AutomaticSize.Y
     body.ScrollBarImageColor3 = Color3.fromRGB(0,120,255)
 
@@ -113,8 +116,8 @@ function Library:CreateWindow(cfg)
         btn.TextSize = 16
         btn.TextColor3 = Color3.fromRGB(180,180,180)
         btn.BackgroundTransparency = 1
-        btn.TextXAlignment = Enum.TextXAlignment.Left
-        btn.Position = UDim2.fromOffset(12,0)
+        btn.TextXAlignment = Enum.TextXAlignment.Center -- **แก้ให้ text อยู่กลาง**
+        btn.Position = UDim2.fromOffset(0,0)
 
         local frame = Instance.new("Frame", content)
         frame.Size = UDim2.fromScale(1,1)
@@ -122,7 +125,7 @@ function Library:CreateWindow(cfg)
         frame.BackgroundTransparency = 1
 
         local layout = Instance.new("UIListLayout", frame)
-        layout.Padding = UDim.new(0,10)
+        layout.Padding = UDim.new(0,6)
         layout.SortOrder = Enum.SortOrder.LayoutOrder
 
         btn.MouseButton1Click:Connect(function()
@@ -145,17 +148,16 @@ function Library:CreateWindow(cfg)
             c.Size = UDim2.new(1,-10,0,h)
             c.BackgroundColor3 = Color3.fromRGB(22,22,26)
             local cCorner = Instance.new("UICorner", c)
-            cCorner.CornerRadius = UDim.new(0,12)
+            cCorner.CornerRadius = UDim.new(0,10)
             return c
         end
 
         function Tab:AddToggle(cfg)
-            local c = Card(50)
-
+            local c = Card(36) -- ลดขนาด
             local txt = Instance.new("TextLabel", c)
             txt.Text = cfg.Text
             txt.Font = Enum.Font.Gotham
-            txt.TextSize = 14
+            txt.TextSize = 12
             txt.TextColor3 = Color3.new(1,1,1)
             txt.BackgroundTransparency = 1
             txt.Position = UDim2.fromOffset(12,0)
@@ -163,16 +165,15 @@ function Library:CreateWindow(cfg)
             txt.TextXAlignment = Enum.TextXAlignment.Left
 
             local sw = Instance.new("TextButton", c)
-            sw.Size = UDim2.fromOffset(44,22)
-            sw.Position = UDim2.new(1,-56,0.5,-11)
+            sw.Size = UDim2.fromOffset(40,18)
+            sw.Position = UDim2.new(1,-50,0.5,-9)
             sw.BackgroundColor3 = Color3.fromRGB(70,70,70)
-            local swCorner = Instance.new("UICorner", sw)
-            swCorner.CornerRadius = UDim.new(1,0)
+            Instance.new("UICorner", sw).CornerRadius = UDim.new(1,0)
             sw.Text = ""
 
             local knob = Instance.new("Frame", sw)
-            knob.Size = UDim2.fromOffset(18,18)
-            knob.Position = UDim2.fromOffset(2,2)
+            knob.Size = UDim2.fromOffset(16,16)
+            knob.Position = UDim2.fromOffset(2,1)
             knob.BackgroundColor3 = Color3.fromRGB(230,230,230)
             Instance.new("UICorner", knob).CornerRadius = UDim.new(1,0)
 
@@ -180,37 +181,14 @@ function Library:CreateWindow(cfg)
             sw.MouseButton1Click:Connect(function()
                 on = not on
                 tween(sw,{BackgroundColor3 = on and Color3.fromRGB(0,140,255) or Color3.fromRGB(70,70,70)},0.2)
-                tween(knob,{Position = on and UDim2.fromOffset(24,2) or UDim2.fromOffset(2,2)},0.2)
+                tween(knob,{Position = on and UDim2.fromOffset(22,1) or UDim2.fromOffset(2,1)},0.2)
                 if cfg.Callback then cfg.Callback(on) end
                 ActiveToggles[cfg.Text] = on
             end)
         end
 
-        function Tab:AddButton(cfg)
-            local c = Card(44)
-
-            local b = Instance.new("TextButton", c)
-            b.Size = UDim2.new(1,0,1,0)
-            b.BackgroundTransparency = 1
-            b.Text = cfg.Text
-            b.Font = Enum.Font.Gotham
-            b.TextSize = 14
-            b.TextColor3 = Color3.new(1,1,1)
-            b.TextXAlignment = Enum.TextXAlignment.Left
-            b.Position = UDim2.fromOffset(12,0)
-
-            b.MouseButton1Click:Connect(function()
-                -- bounce effect
-                local originalPos = b.Position
-                tween(b,{Position=UDim2.new(originalPos.X.Scale, originalPos.X.Offset, originalPos.Y.Scale, originalPos.Y.Offset+2)},0.05)
-                wait(0.05)
-                tween(b,{Position=originalPos},0.05)
-                if cfg.Callback then cfg.Callback() end
-            end)
-        end
-
-        -- Slider, Dropdown, Textbox เพิ่ม scroll, draggable, ปรับปรุงให้ interactive ตามต้องการ
-        -- สามารถทำต่อได้ตาม structure ของ Toggle และ Button
+        -- สามารถเพิ่ม Button, Slider, Dropdown, TextBox ตาม structure เดิม
+        -- ลดขนาด Card, TextSize และขยาย main menu ให้ใหญ่ขึ้นเหมือน Toggle
 
         return Tab
     end
