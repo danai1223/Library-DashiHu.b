@@ -195,7 +195,6 @@ function Library:CreateWindow(cfg)
             b.TextXAlignment = Enum.TextXAlignment.Left
             b.Position = UDim2.fromOffset(12,0)
             b.MouseButton1Click:Connect(function()
-                -- bounce effect
                 local original = b.Position
                 tween(b,{Position=UDim2.new(original.X.Scale,original.X.Offset,original.Y.Scale,original.Y.Offset+2)},0.05)
                 wait(0.05)
@@ -204,7 +203,7 @@ function Library:CreateWindow(cfg)
             end)
         end
 
-        -- Slider
+        -- Slider (touch-friendly)
         function Tab:AddSlider(cfg)
             local c = Card(36)
             local label = Instance.new("TextLabel",c)
@@ -229,7 +228,7 @@ function Library:CreateWindow(cfg)
             knob.BackgroundColor3 = Color3.fromRGB(0,140,255)
             Instance.new("UICorner", knob).CornerRadius = UDim.new(1,0)
 
-            local mouseDown=false
+            local dragging = false
             local function update(x)
                 local p=math.clamp(x-slider.AbsolutePosition.X,0,slider.AbsoluteSize.X)
                 knob.Position=UDim2.fromOffset(p,-3)
@@ -239,17 +238,17 @@ function Library:CreateWindow(cfg)
             end
 
             knob.InputBegan:Connect(function(i)
-                if i.UserInputType==Enum.UserInputType.MouseButton1 then mouseDown=true end
+                if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dragging=true end
             end)
             knob.InputEnded:Connect(function(i)
-                if i.UserInputType==Enum.UserInputType.MouseButton1 then mouseDown=false end
+                if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dragging=false end
             end)
             UserInputService.InputChanged:Connect(function(i)
-                if mouseDown and i.UserInputType==Enum.UserInputType.MouseMovement then update(i.Position.X) end
+                if dragging then update(i.Position.X) end
             end)
         end
 
-        -- Dropdown
+        -- Dropdown (overlay + rounded)
         function Tab:AddDropdown(cfg)
             local c = Card(36)
             local label = Instance.new("TextLabel",c)
@@ -273,32 +272,38 @@ function Library:CreateWindow(cfg)
             Instance.new("UICorner", dropBtn).CornerRadius=UDim.new(0,6)
 
             local open=false
-            local listFrame=Instance.new("Frame",c)
-            listFrame.Size=UDim2.new(1,0,0,#cfg.List*24)
-            listFrame.Position=UDim2.new(0,0,1,0)
+            local listFrame = Instance.new("Frame",gui) -- overlay on gui
+            listFrame.Size=UDim2.new(0,dropBtn.AbsoluteSize.X,#cfg.List*24,0)
+            listFrame.Position = dropBtn.AbsolutePosition + Vector2.new(0, dropBtn.AbsoluteSize.Y)
             listFrame.BackgroundColor3=Color3.fromRGB(40,40,40)
-            listFrame.Visible=false
             Instance.new("UICorner", listFrame).CornerRadius=UDim.new(0,6)
+            listFrame.Visible=false
 
+            local options={}
             for i,v in pairs(cfg.List) do
                 local option = Instance.new("TextButton", listFrame)
                 option.Size=UDim2.new(1,0,0,24)
-                option.Position=UDim2.new(0,0,(i-1)*24,0)
+                option.Position=UDim2.new(0,0,0,(i-1)*24)
                 option.Text=v
                 option.Font=Enum.Font.Gotham
                 option.TextSize=12
                 option.TextColor3=Color3.new(1,1,1)
                 option.BackgroundColor3=Color3.fromRGB(60,60,60)
+                Instance.new("UICorner", option).CornerRadius=UDim.new(0,4)
                 option.MouseButton1Click:Connect(function()
                     dropBtn.Text=v
                     listFrame.Visible=false
                     if cfg.Callback then cfg.Callback(v) end
                 end)
+                table.insert(options,option)
             end
 
             dropBtn.MouseButton1Click:Connect(function()
-                open=not open
+                open = not open
                 listFrame.Visible=open
+                -- update overlay position
+                local abs = dropBtn.AbsolutePosition
+                listFrame.Position = UDim2.new(0, abs.X, 0, abs.Y + dropBtn.AbsoluteSize.Y)
             end)
         end
 
