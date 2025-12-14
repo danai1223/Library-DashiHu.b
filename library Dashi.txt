@@ -179,7 +179,7 @@ Logo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Logo.BackgroundTransparency = 1
 Logo.Position = UDim2.new(0, 4, 0.5, 0)
 Logo.Size = UDim2.new(0, 52, 0, 60)
-Logo.Image = "rbxassetid://97028755718583"
+Logo.Image = "rbxassetid://113411616596421"
 Logo.ImageColor3 = Color3.fromRGB(0, 180, 255)
     
     -- Close Button
@@ -1013,6 +1013,7 @@ end
 
 
 return Library
+
 
 
 
