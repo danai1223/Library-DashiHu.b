@@ -1,3 +1,4 @@
+-- ล้าง UI เก่า
 pcall(function()
     game:GetService('CoreGui'):FindFirstChild('ui'):Remove()
 end)
@@ -11,7 +12,7 @@ local Library = {}
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 
--- Create UI
+-- สร้าง UI
 function Library:Window(title)
     local ui = Instance.new("ScreenGui")
     ui.Name = "ui"
@@ -20,7 +21,7 @@ function Library:Window(title)
     ui.IgnoreGuiInset = true
     ui.ResetOnSpawn = false
 
-    -- Main Frame
+    -- ===== Main Frame =====
     local Main = Instance.new("Frame")
     Main.Name = "Main"
     Main.Parent = ui
@@ -30,22 +31,76 @@ function Library:Window(title)
     Main.Size = UDim2.new(0, 470, 0, 283)
     Main.Active = true
     Main.Selectable = true
-    
-    -- Make draggable
+
+    -- ===== Floating Button “Dashi Hub” =====
+    local FloatBtn = Instance.new("TextButton")
+    FloatBtn.Name = "FloatToggle"
+    FloatBtn.Parent = ui
+    FloatBtn.Size = UDim2.new(0, 120, 0, 40) -- ขนาดพอดีข้อความ
+    FloatBtn.Position = UDim2.new(0, 20, 0.5, -20)
+    FloatBtn.BackgroundColor3 = Color3.fromRGB(0,180,255)
+    FloatBtn.Text = "Dashi Hub"
+    FloatBtn.TextColor3 = Color3.new(1,1,1)
+    FloatBtn.Font = Enum.Font.GothamBold
+    FloatBtn.TextSize = 22
+    FloatBtn.BorderSizePixel = 0
+    FloatBtn.ZIndex = 999
+    FloatBtn.AutoButtonColor = true
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0,8) -- มนพอดี
+    corner.Parent = FloatBtn
+
+    -- กดปุ่มลอยเปิด/ปิด Main
+    FloatBtn.MouseButton1Click:Connect(function()
+        Main.Visible = not Main.Visible
+    end)
+
+    -- ลากปุ่มลอยได้
+    local draggingBtn = false
+    local dragStartBtn, startPosBtn
+
+    FloatBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingBtn = true
+            dragStartBtn = input.Position
+            startPosBtn = FloatBtn.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    draggingBtn = false
+                end
+            end)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if draggingBtn and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStartBtn
+            FloatBtn.Position = UDim2.new(
+                startPosBtn.X.Scale,
+                startPosBtn.X.Offset + delta.X,
+                startPosBtn.Y.Scale,
+                startPosBtn.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    -- ===== Make Main draggable =====
     local dragging = false
     local dragInput, dragStart, startPos
-    
+
     local function updateInput(input)
         local Delta = input.Position - dragStart
         Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
     end
-    
+
     Main.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = Main.Position
-            
+
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
@@ -53,13 +108,13 @@ function Library:Window(title)
             end)
         end
     end)
-    
+
     Main.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
-    
+
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             updateInput(input)
@@ -956,5 +1011,6 @@ GameName.TextXAlignment = Enum.TextXAlignment.Left
     
     return TabFunctions
 end
+
 
 return Library
