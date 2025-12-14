@@ -526,15 +526,21 @@ GameName.TextXAlignment = Enum.TextXAlignment.Left
         function Elements:Label(text)
     local Label = Instance.new("TextLabel")
     Label.Parent = Page
-    Label.BackgroundColor3 = Color3.fromRGB(35, 35, 35) -- พื้นหลังเทาเข้ม
+    Label.BackgroundColor3 = Color3.fromRGB(35, 35, 35) -- พื้นหลังสีเดิม (จะไม่เห็นเพราะโปร่งใส)
+    Label.BackgroundTransparency = 1 -- ทำให้โปร่งใส
     Label.BorderSizePixel = 0
     Label.Size = UDim2.new(1, -6, 0, 34)
-    Label.Font = Enum.Font.Gotham
+    Label.Font = Enum.Font.Cartoon -- ฟ้อนต์ใกล้ Minecraft
     Label.Text = text or "Label"
     Label.TextColor3 = Color3.fromRGB(0, 180, 255) -- ฟ้านีออน
     Label.TextSize = 14
-    Label.TextXAlignment = Enum.TextXAlignment.Center -- กึ่งกลางแนวนอน
-    Label.TextYAlignment = Enum.TextYAlignment.Center -- กึ่งกลางแนวตั้ง
+    Label.TextXAlignment = Enum.TextXAlignment.Center
+    Label.TextYAlignment = Enum.TextYAlignment.Center
+
+    local LabelStroke = Instance.new("TextStroke")
+    LabelStroke.Color = Color3.fromRGB(0, 0, 0) -- ขอบตัวอักษรสีดำ
+    LabelStroke.Thickness = 2
+    LabelStroke.Parent = Label
 
     local LabelCorner = Instance.new("UICorner")
     LabelCorner.CornerRadius = UDim.new(0, 6)
@@ -1014,6 +1020,7 @@ end
 
 
 return Library
+
 
 
 
