@@ -173,13 +173,13 @@ function Library:Window(title)
     -- Logo
     local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
-Logo.Parent = Top
+Logo.Parent = Top -- ต้องเป็น Frame หรือ GuiObject ที่ Visible = true
 Logo.AnchorPoint = Vector2.new(0, 0.5)
 Logo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Logo.BackgroundTransparency = 1
 Logo.Position = UDim2.new(0, 4, 0.5, 0)
-Logo.Size = UDim2.new(0, 26, 0, 30)
-Logo.Image = "rbxassetid://97028755718583" -- ใส่เฉพาะ rbxassetid://ID
+Logo.Size = UDim2.new(0, 52, 0, 60)
+Logo.Image = "rbxassetid://97028755718583"
 Logo.ImageColor3 = Color3.fromRGB(0, 180, 255)
     
     -- Close Button
@@ -1013,6 +1013,7 @@ end
 
 
 return Library
+
 
 
 
