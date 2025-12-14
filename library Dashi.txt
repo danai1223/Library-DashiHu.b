@@ -526,22 +526,26 @@ GameName.TextXAlignment = Enum.TextXAlignment.Left
         function Elements:Label(text)
     local Label = Instance.new("TextLabel")
     Label.Parent = Page
-    Label.BackgroundColor3 = Color3.fromRGB(35, 35, 35) -- พื้นหลังสีเดิม (จะไม่เห็นเพราะโปร่งใส)
+    Label.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     Label.BackgroundTransparency = 1 -- ทำให้โปร่งใส
     Label.BorderSizePixel = 0
     Label.Size = UDim2.new(1, -6, 0, 34)
-    Label.Font = Enum.Font.Cartoon -- ฟ้อนต์ใกล้ Minecraft
-    Label.Text = text or "Label"
+    
+    -- ฟ้อนต์ Minecraft style (ใช้ Cartoon/Pixellated look)
+    Label.Font = Enum.Font.Cartoon
+    Label.Text = "  " .. (text or "Label") -- เว้น 2 space ด้านหน้าเพื่อ Library layout
     Label.TextColor3 = Color3.fromRGB(0, 180, 255) -- ฟ้านีออน
-    Label.TextSize = 14
-    Label.TextXAlignment = Enum.TextXAlignment.Center
+    Label.TextSize = 16
+    Label.TextXAlignment = Enum.TextXAlignment.Left -- ต้อง Left เพื่อให้ Toggle ขึ้น
     Label.TextYAlignment = Enum.TextYAlignment.Center
-
-    local LabelStroke = Instance.new("TextStroke")
-    LabelStroke.Color = Color3.fromRGB(0, 0, 0) -- ขอบตัวอักษรสีดำ
-    LabelStroke.Thickness = 2
-    LabelStroke.Parent = Label
-
+    
+    -- เอฟเฟกต์เรืองแสง
+    local Stroke = Instance.new("TextStroke")
+    Stroke.Parent = Label
+    Stroke.Color = Color3.fromRGB(0, 255, 255) -- สีฟ้า neon
+    Stroke.Thickness = 2
+    
+    -- มุมโค้งเล็ก ๆ
     local LabelCorner = Instance.new("UICorner")
     LabelCorner.CornerRadius = UDim.new(0, 6)
     LabelCorner.Parent = Label
@@ -1020,6 +1024,7 @@ end
 
 
 return Library
+
 
 
 
