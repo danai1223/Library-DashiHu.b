@@ -219,7 +219,7 @@ GameName.Size = UDim2.new(0, 165, 0, 22)
 GameName.Font = Enum.Font.Gotham
 GameName.Text = title or "Game Name"
 GameName.TextColor3 = Color3.fromRGB(0, 180, 255) -- ฟ้านีออน
-GameName.TextSize = 14
+GameName.TextSize = 15
 GameName.TextXAlignment = Enum.TextXAlignment.Left
     
     -- Tabs Container
@@ -1015,6 +1015,7 @@ end
 
 
 return Library
+
 
 
 
