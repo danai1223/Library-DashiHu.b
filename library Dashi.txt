@@ -524,22 +524,23 @@ GameName.TextXAlignment = Enum.TextXAlignment.Left
         
         -- Label
         function Elements:Label(text)
-            local Label = Instance.new("TextLabel")
-            Label.Parent = Page
-            Label.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-            Label.BackgroundTransparency = 1
-            Label.BorderSizePixel = 0
-            Label.Size = UDim2.new(1, -6, 0, 34)
-            Label.Font = Enum.Font.Gotham
-            Label.Text = "  " .. (text or "Label")
-            Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Label.TextSize = 14.000
-            Label.TextXAlignment = Enum.TextXAlignment.Left
-            
-            local LabelCorner = Instance.new("UICorner")
-            LabelCorner.CornerRadius = UDim.new(0, 6)
-            LabelCorner.Parent = Label
-        end
+    local Label = Instance.new("TextLabel")
+    Label.Parent = Page
+    Label.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    Label.BackgroundTransparency = 1
+    Label.BorderSizePixel = 0
+    Label.Size = UDim2.new(1, -6, 0, 34)
+    Label.Font = Enum.Font.GothamBold
+    Label.Text = text or "Label"
+    Label.TextColor3 = Color3.fromRGB(0, 180, 255)
+    Label.TextSize = 16
+    Label.TextXAlignment = Enum.TextXAlignment.Center
+    Label.TextYAlignment = Enum.TextYAlignment.Center
+
+    local LabelCorner = Instance.new("UICorner")
+    LabelCorner.CornerRadius = UDim.new(0, 6)
+    LabelCorner.Parent = Label
+end
         
         -- Slider
         function Elements:Slider(text, min, max, default, callback)
@@ -1014,6 +1015,7 @@ end
 
 
 return Library
+
 
 
 
