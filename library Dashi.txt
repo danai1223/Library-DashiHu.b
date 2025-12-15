@@ -22,14 +22,15 @@ function Library:Window(title)
 
     -- ===== Main Frame =====
     local Main = Instance.new("Frame")
-    Main.Name = "Main"
-    Main.Parent = ui
-    Main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    Main.BorderSizePixel = 0
-    Main.Position = UDim2.new(0.377, 0, 0.368, 0)
-    Main.Size = UDim2.new(0, 470, 0, 283)
-    Main.Active = true
-    Main.Selectable = true
+Main.Name = "Main"
+Main.Parent = ui
+Main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Main.BackgroundTransparency = 0.6
+Main.BorderSizePixel = 0
+Main.Position = UDim2.new(0.377, 0, 0.368, 0)
+Main.Size = UDim2.new(0, 470, 0, 283)
+Main.Active = true
+Main.Selectable = true
 
     -- ===== Floating Button “Dashi Hub” =====
     local FloatBtn = Instance.new("TextButton")
@@ -1015,6 +1016,7 @@ end
 
 
 return Library
+
 
 
 
