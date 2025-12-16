@@ -217,7 +217,7 @@ Minimize.Position = UDim2.new(1, -6 - 26 - 10, 0.5, 0)
 
 Minimize.Size = UDim2.new(0, 26, 0, 26)
 
-Minimize.Image = "http://www.roblox.com/asset/?id=6031094678"
+Minimize.Image = "http://www.roblox.com/asset/?id=3926305904"
 Minimize.ImageColor3 = Color3.fromRGB(199, 199, 199)
 Minimize.ScaleType = Enum.ScaleType.Crop
 
@@ -1051,5 +1051,6 @@ end
 
 
 return Library
+
 
 
