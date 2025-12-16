@@ -190,7 +190,7 @@ Logo.ImageColor3 = Color3.fromRGB(0, 180, 255)
     Close.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Close.BackgroundTransparency = 1.000
     Close.Position = UDim2.new(1, -6, 0.5, 0)
-    Close.Size = UDim2.new(0, 20, 0, 20)
+    Close.Size = UDim2.new(0, 26, 0, 26)
     Close.Image = "http://www.roblox.com/asset/?id=7755372427"
     Close.ImageColor3 = Color3.fromRGB(199, 199, 199)
     Close.ScaleType = Enum.ScaleType.Crop
@@ -206,17 +206,17 @@ Logo.ImageColor3 = Color3.fromRGB(0, 180, 255)
     Close.MouseLeave:Connect(function()
         TweenService:Create(Close, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(166, 166, 166)}):Play()
     end)
+
 -- Minimize Button (-)
 local Minimize = Instance.new("ImageButton")
 Minimize.Name = "Minimize"
 Minimize.Parent = Top
 Minimize.AnchorPoint = Vector2.new(1, 0.5)
 Minimize.BackgroundTransparency = 1
+Minimize.Position = UDim2.new(1, -6 - 26 - 10, 0.5, 0)
 
--- ⬅️ ซ้ายปุ่ม X แบบเป๊ะ
-Minimize.Position = UDim2.new(1, -6 - 20 - 6, 0.5, 0)
+Minimize.Size = UDim2.new(0, 26, 0, 26)
 
-Minimize.Size = UDim2.new(0, 20, 0, 20)
 Minimize.Image = "http://www.roblox.com/asset/?id=6031094678"
 Minimize.ImageColor3 = Color3.fromRGB(199, 199, 199)
 Minimize.ScaleType = Enum.ScaleType.Crop
@@ -1051,4 +1051,5 @@ end
 
 
 return Library
+
 
