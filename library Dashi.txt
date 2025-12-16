@@ -206,6 +206,42 @@ Logo.ImageColor3 = Color3.fromRGB(0, 180, 255)
     Close.MouseLeave:Connect(function()
         TweenService:Create(Close, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(166, 166, 166)}):Play()
     end)
+-- Minimize Button (-)
+local Minimize = Instance.new("ImageButton")
+Minimize.Name = "Minimize"
+Minimize.Parent = Top
+Minimize.AnchorPoint = Vector2.new(1, 0.5)
+Minimize.BackgroundTransparency = 1
+
+-- ⬅️ ซ้ายปุ่ม X แบบเป๊ะ
+Minimize.Position = UDim2.new(1, -6 - 20 - 6, 0.5, 0)
+
+Minimize.Size = UDim2.new(0, 20, 0, 20)
+Minimize.Image = "http://www.roblox.com/asset/?id=6031094678"
+Minimize.ImageColor3 = Color3.fromRGB(199, 199, 199)
+Minimize.ScaleType = Enum.ScaleType.Crop
+
+-- กดแล้วพับ UI (ซ่อน Main)
+Minimize.MouseButton1Click:Connect(function()
+Main.Visible = false
+end)
+
+-- Hover Effect (เหมือนปุ่ม X)
+Minimize.MouseEnter:Connect(function()
+TweenService:Create(
+Minimize,
+TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+{ImageColor3 = Color3.fromRGB(255, 255, 255)}
+):Play()
+end)
+
+Minimize.MouseLeave:Connect(function()
+TweenService:Create(
+Minimize,
+TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+{ImageColor3 = Color3.fromRGB(166, 166, 166)}
+):Play()
+end)
     
     -- Title
     local GameName = Instance.new("TextLabel")
@@ -1015,3 +1051,4 @@ end
 
 
 return Library
+
