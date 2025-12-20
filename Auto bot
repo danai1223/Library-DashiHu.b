@@ -1,0 +1,284 @@
+-- =========================
+-- SERVICES
+-- =========================
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+local PlaceId = game.PlaceId
+
+local DeployRemote = ReplicatedStorage
+    :WaitForChild("Remotes")
+    :WaitForChild("game")
+    :WaitForChild("deploy")
+
+-- =========================
+-- FLUENT UI
+-- =========================
+local Fluent = loadstring(game:HttpGet(
+    "https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"
+))()
+
+local Window = Fluent:CreateWindow({
+    Title = "KUYREX HUB " .. Fluent.Version,
+    SubTitle = "Bot Framing x Kuyrex Hub",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(500, 300),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "หน้าหลัก", Icon = "house" }),
+}
+
+-- =========================
+-- PARAGRAPH บนสุด
+-- =========================
+Tabs.Main:AddParagraph({
+    Title = "▶️ระบบบอทฟาร์ม◀️",
+    Content = "รันในรหัสไก่ → เลือกรหัสหลัก\nเปิดบอทแล้วจะวาปไปให้รหัสหลักตี"
+})
+
+-- =========================
+-- VARIABLES
+-- =========================
+local BotEnabled = false
+local SelectedPlayer = nil
+
+-- =========================
+-- PLAYER LIST
+-- =========================
+local function GetPlayerNames()
+    local t = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then
+            table.insert(t, p.Name)
+        end
+    end
+    return t
+end
+
+local PlayerDropdown = Tabs.Main:AddDropdown("SelectPlayer", {
+    Title = "เลือกผู้เล่น",
+    Values = GetPlayerNames(),
+    Multi = false,
+})
+
+PlayerDropdown:OnChanged(function(v)
+    SelectedPlayer = v
+end)
+
+Players.PlayerAdded:Connect(function()
+    PlayerDropdown:SetValues(GetPlayerNames())
+end)
+
+Players.PlayerRemoving:Connect(function()
+    PlayerDropdown:SetValues(GetPlayerNames())
+end)
+
+-- =========================
+-- FUNCTIONS
+-- =========================
+local function InLiving()
+    return workspace:FindFirstChild("Living")
+        and workspace.Living:FindFirstChild(player.Name)
+end
+
+local function RespawnAndWait()
+    if player.Character then
+        player.Character:BreakJoints()
+    end
+    player.CharacterAdded:Wait()
+end
+
+local function TeleportFront(targetChar)
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    local thrp = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
+    if hrp and thrp then
+        hrp.CFrame = thrp.CFrame * CFrame.new(0, 0, -3)
+    end
+end
+
+-- =========================
+-- BOT FARM TOGGLE
+-- =========================
+Tabs.Main:AddToggle("botframing", {
+    Title = "บอทฟาร์ม ✅",
+    Default = false
+}):OnChanged(function(v)
+    BotEnabled = v
+    if not v then return end
+
+    task.spawn(function()
+        while BotEnabled do
+            if not InLiving() then
+                pcall(function()
+                    DeployRemote:InvokeServer()
+                end)
+                repeat task.wait() until InLiving() or not BotEnabled
+            end
+
+            if not BotEnabled then break end
+
+            local livingChar = workspace.Living:WaitForChild(player.Name)
+            local indicator = livingChar
+                :WaitForChild("Torso")
+                :WaitForChild("percentIndicator")
+                :WaitForChild("numForTweening")
+
+            while BotEnabled do
+                if indicator.Value == 0 then
+                    local target = SelectedPlayer and Players:FindFirstChild(SelectedPlayer)
+                    if target and target.Character then
+                        TeleportFront(target.Character)
+                    end
+                else
+                    RespawnAndWait()
+                    break
+                end
+                task.wait(0.15)
+            end
+        end
+    end)
+end)
+
+-- =========================
+-- SERVER PARAGRAPH
+-- =========================
+Tabs.Main:AddParagraph({
+    Title = "▶️ระบบเชิร์ฟเวอร์◀️",
+    Content = "เปลี่ยนเชิร์ฟ / หาเชิร์ฟใหม่"
+})
+
+-- =========================
+-- SERVER FUNCTIONS
+-- =========================
+local function GetServers()
+    local servers = {}
+    local cursor = ""
+    repeat
+        local url = "https://games.roblox.com/v1/games/" .. PlaceId ..
+            "/servers/Public?sortOrder=Asc&limit=100" ..
+            (cursor ~= "" and "&cursor=" .. cursor or "")
+        local data = HttpService:JSONDecode(game:HttpGet(url))
+        for _, s in ipairs(data.data) do
+            table.insert(servers, s)
+        end
+        cursor = data.nextPageCursor or ""
+    until cursor == ""
+    return servers
+end
+
+Tabs.Main:AddButton({
+    Title = "เชิร์ฟที่มาใหม่ ✅",
+    Callback = function()
+        for _, s in ipairs(GetServers()) do
+            if s.playing < s.maxPlayers and s.uptime < 300 then
+                TeleportService:TeleportToPlaceInstance(PlaceId, s.id, player)
+                return
+            end
+        end
+    end
+})
+
+Tabs.Main:AddButton({
+    Title = "เชิร์ฟเวอร์คนน้อย ✅",
+    Callback = function()
+        for _, s in ipairs(GetServers()) do
+            if s.playing <= 2 then
+                TeleportService:TeleportToPlaceInstance(PlaceId, s.id, player)
+                return
+            end
+        end
+    end
+})
+
+Tabs.Main:AddButton({
+    Title = "ออกเข้าใหม่ ✅",
+    Callback = function()
+        TeleportService:Teleport(PlaceId, player)
+    end
+})
+
+-- =========================
+-- FLOATING BUTTON (OPEN/CLOSE UI)
+-- =========================
+local gui = Instance.new("ScreenGui")
+gui.Name = "FluentFloatingUI"
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+local button = Instance.new("TextButton")
+button.Parent = gui
+button.Size = UDim2.new(0, 52, 0, 52)
+button.Position = UDim2.new(0, 15, 0.5, -26)
+button.Text = "KUY"
+button.Font = Enum.Font.GothamBold
+button.TextScaled = true
+button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.BorderSizePixel = 0
+button.AnchorPoint = Vector2.new(0, 0.5)
+
+local corner = Instance.new("UICorner", button)
+corner.CornerRadius = UDim.new(0, 12)
+
+local stroke = Instance.new("UIStroke", button)
+stroke.Thickness = 1.5
+stroke.Color = Color3.fromRGB(90, 90, 90)
+
+-- Toggle UI
+button.MouseButton1Click:Connect(function()
+    Window:Minimize()
+end)
+
+-- Drag system
+local dragging, dragStart, startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    button.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+button.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = button.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging then
+        update(input)
+    end
+end)
+
+-- =========================
+-- NOTIFY
+-- =========================
+Fluent:Notify({
+    Title = "พร้อมแล้ว ✅",
+    Content = "Kuyrex Hub พร้อมใช้งาน",
+    Duration = 3
+})
+
+Window:SelectTab(1)
